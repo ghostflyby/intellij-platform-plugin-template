@@ -13,3 +13,4 @@
         <postStartupActivity implementation="org.jetbrains.plugins.template.startup.MyProjectActivity" />
     </extensions>
 </idea-plugin>
+
