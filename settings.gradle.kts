@@ -5,4 +5,6 @@ plugins {
 }
 
 // Monorepo: include plugin subprojects under `plugins/`
-include(":plugins:template")
+file("plugins").listFiles()?.filter { it.isDirectory }?.forEach { pluginDir ->
+    include(":plugins:${pluginDir.name}")
+}

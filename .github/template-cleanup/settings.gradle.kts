@@ -3,3 +3,8 @@ plugins {
 }
 
 rootProject.name = "%NAME%"
+
+// Monorepo: include plugin subprojects under `plugins/`
+file("plugins").listFiles()?.filter { it.isDirectory }?.forEach { pluginDir ->
+    include(":plugins:${pluginDir.name}")
+}
