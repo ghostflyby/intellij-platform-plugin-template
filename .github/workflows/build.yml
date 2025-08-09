@@ -21,7 +21,7 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
 
   discover:
@@ -40,8 +40,11 @@ jobs:
         run: |
           git fetch origin main --quiet || true
           DIFF=$(git diff --name-only origin/main...HEAD || true)
-          CHANGED=$(echo "$DIFF" | grep '^plugins/' | cut -d/ -f1-2 | sort -u | jq -R -s -c 'split("\n") | map(select(length>0)) | map(":" + gsub("/"; ":"))')
+          echo $DIFF
+          CHANGED=$( { echo "$DIFF" | grep '^plugins/' || true; } | cut -d/ -f1-2 | sort -u | jq -R -s -c 'split("\n") | map(select(length>0)) | map(":" + gsub("/"; ":"))')
+          echo $CHANGED
           MODULES=${CHANGED:-[]}
+          echo "Changed modules: $MODULES"
           echo "modules=$MODULES" >> "$GITHUB_OUTPUT"
 
   build:
@@ -96,12 +99,11 @@ jobs:
           cd ${{ github.workspace }}/${{ steps.modpath.outputs.path }}/build/distributions
           FILENAME=$(ls *.zip)
           unzip "$FILENAME" -d content
-          BASENAME=${FILENAME:0:-4}
-          echo "filename=$BASENAME" >> $GITHUB_OUTPUT
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.modpath.outputs.path }}-${{ steps.artifact.outputs.filename }}
+          name: ${{ steps.artifact.outputs.filename }}
           path: ${{ github.workspace }}/${{ steps.modpath.outputs.path }}/build/distributions/content/*/*
 
   test:
