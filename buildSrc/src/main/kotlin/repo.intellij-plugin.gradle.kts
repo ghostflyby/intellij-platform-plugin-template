@@ -119,21 +119,6 @@ tasks {
         disabledPlugins.add("org.jetbrains.completion.full.line")
         this.sandboxSystemDirectory = rootProject.layout.buildDirectory.dir("idea-sandbox/system")
     }
-
-
-    runIde {
-        jvmArgumentProviders += CommandLineArgumentProvider {
-            listOf("-Xbootclasspath/a:/Applications/IntelliJ IDEA.app/Contents/lib/nio-fs.jar")
-        }
-
-    }
-
-    buildSearchableOptions {
-        jvmArgumentProviders += CommandLineArgumentProvider {
-            listOf("-Xbootclasspath/a:/Applications/IntelliJ IDEA.app/Contents/lib/nio-fs.jar")
-        }
-    }
-
     publishPlugin { dependsOn(patchChangelog) }
 }
 
