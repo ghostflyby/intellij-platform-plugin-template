@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ${{ fromJson(needs.discover.outputs.modules) }}
+        module: ${{ fromJSON(needs.discover.outputs.modules) }}
     steps:
       - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@v1.3.1
@@ -111,7 +111,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ${{ fromJson(needs.discover.outputs.modules) }}
+        module: ${{ fromJSON(needs.discover.outputs.modules) }}
     steps:
       - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@v1.3.1
@@ -186,7 +186,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ${{ fromJson(needs.discover.outputs.modules) }}
+        module: ${{ fromJSON(needs.discover.outputs.modules) }}
     steps:
       - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@v1.3.1
@@ -230,7 +230,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ${{ fromJson(needs.discover.outputs.modules) }}
+        module: ${{ fromJSON(needs.discover.outputs.modules) }}
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
