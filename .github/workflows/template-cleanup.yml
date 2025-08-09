@@ -39,17 +39,29 @@ jobs:
           sed -i "s/%REPOSITORY%/${GITHUB_REPOSITORY/\//\\/}/g" .github/template-cleanup/*
           sed -i "s/%GROUP%/$GROUP/g" .github/template-cleanup/*
 
-          # Replace template package name in project files with $GROUP
-          find src -type f -exec sed -i "s/org.jetbrains.plugins.template/$GROUP/g" {} +
-          find src -type f -exec sed -i "s/IntelliJ Platform Plugin Template/$NAME/g" {} +
-          find src -type f -exec sed -i "s/JetBrains/$ACTOR/g" {} +
+          # Replace template package/name/author in all plugin modules under monorepo layout
+          for MODULE in plugins/*; do
+            if [ -d "$MODULE/src" ]; then
+              find "$MODULE/src" -type f -exec sed -i "s/org.jetbrains.plugins.template/$GROUP/g" {} +
+              find "$MODULE/src" -type f -exec sed -i "s/IntelliJ Platform Plugin Template/$NAME/g" {} +
+              find "$MODULE/src" -type f -exec sed -i "s/JetBrains/$ACTOR/g" {} +
+            fi
+          done
 
-          # Move content
-          mkdir -p src/main/kotlin/${GROUP//.//}
-          mkdir -p src/test/kotlin/${GROUP//.//}
+          # Move content for each plugin module
           cp -R .github/template-cleanup/. .
-          cp -R src/main/kotlin/org/jetbrains/plugins/template/* src/main/kotlin/${GROUP//.//}/
-          cp -R src/test/kotlin/org/jetbrains/plugins/template/* src/test/kotlin/${GROUP//.//}/
+          for MODULE in plugins/*; do
+            if [ -d "$MODULE/src/main/kotlin" ]; then
+              mkdir -p "$MODULE/src/main/kotlin/${GROUP//.//}"
+              mkdir -p "$MODULE/src/test/kotlin/${GROUP//.//}"
+              if [ -d "$MODULE/src/main/kotlin/org/jetbrains/plugins/template" ]; then
+                cp -R "$MODULE/src/main/kotlin/org/jetbrains/plugins/template/"* "$MODULE/src/main/kotlin/${GROUP//.//}/" || true
+              fi
+              if [ -d "$MODULE/src/test/kotlin/org/jetbrains/plugins/template" ]; then
+                cp -R "$MODULE/src/test/kotlin/org/jetbrains/plugins/template/"* "$MODULE/src/test/kotlin/${GROUP//.//}/" || true
+              fi
+            fi
+          done
 
           # Cleanup
           rm -rf \
@@ -59,10 +71,13 @@ jobs:
             .github/workflows/template-cleanup.yml \
             .github/workflows/template-verify.yml \
             .idea/icon.png \
-            src/main/kotlin/org \
-            src/test/kotlin/org \
             CODE_OF_CONDUCT.md \
             LICENSE
+
+          # Remove leftover template package roots per plugin
+          for MODULE in plugins/*; do
+            rm -rf "$MODULE/src/main/kotlin/org" "$MODULE/src/test/kotlin/org"
+          done
 
       # Commit modified files
       - name: Commit files
