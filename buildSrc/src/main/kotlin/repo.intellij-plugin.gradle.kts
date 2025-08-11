@@ -13,6 +13,8 @@ plugins {
     alias(libs.plugins.kover) // Gradle Kover Plugin}
 }
 
+group = providers.gradleProperty("pluginGroup").get()
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
@@ -45,18 +47,12 @@ dependencies {
             )
         }
 
-        bundledPlugins(
-            providers.gradleProperty("platformBundledPlugins").map { it.split(',').filter { s -> s.isNotBlank() } })
-        plugins(providers.gradleProperty("platformPlugins").map { it.split(',').filter { s -> s.isNotBlank() } })
-
         testFramework(TestFrameworkType.Platform)
     }
 }
 
 intellijPlatform {
     pluginConfiguration {
-        name = providers.gradleProperty("pluginName")
-        version = providers.gradleProperty("pluginVersion")
 
         description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
             val start = "<!-- Plugin description -->"
@@ -71,7 +67,7 @@ intellijPlatform {
         }
 
         val changelog = project.changelog
-        changeNotes = providers.gradleProperty("pluginVersion").map { pluginVersion ->
+        changeNotes = version.map { pluginVersion ->
             with(changelog) {
                 renderItem(
                     (getOrNull(pluginVersion) ?: getUnreleased())

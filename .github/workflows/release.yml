@@ -55,16 +55,6 @@ jobs:
           echo "module_path=$MOD_PATH" >> "$GITHUB_OUTPUT"
           echo "gradle_path=$GRADLE_PATH" >> "$GITHUB_OUTPUT"
 
-      # Publish only that module
-      - name: Publish Plugin
-        env:
-          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
-        run: |
-          ./gradlew "${{ steps.mod.outputs.gradle_path }}:publishPlugin"
-
       # Set environment variables
       - name: Export Properties
         id: properties
@@ -85,11 +75,11 @@ jobs:
         env:
           CHANGELOG: ${{ github.event.release.body }}
         run: |
-          RELEASE_NOTE="./build/tmp/release_note.txt"
+          RELEASE_NOTE=$(mktemp)
           echo "$CHANGELOG" > $RELEASE_NOTE
 
-          ${{ github.event.release.body }}
           ./gradlew patchChangelog --release-note-file=$RELEASE_NOTE
+          rm $RELEASE_NOTE
 
       # Publish the plugin to JetBrains Marketplace
       - name: Publish Plugin
@@ -120,7 +110,7 @@ jobs:
           git config user.name "GitHub Action"
 
           git checkout -b $BRANCH
-          git commit -am "Changelog update - $VERSION"
+          git commit -am "chore: [skip ci]Changelog update - $VERSION"
           git push --set-upstream origin $BRANCH
           
           gh label create "$LABEL" \
